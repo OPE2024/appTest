@@ -60,6 +60,8 @@ dependencies {
     implementation 'com.parse:parse-android:1.10.0'
    // implementation "com.github.parse-community.Parse-SDK-Android:parse:3.0.0"
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
+    implementation 'com.snappydb:snappydb-lib:0.5.2'
+    implementation 'com.esotericsoftware.kryo:kryo:2.24.0'
 
 
 }

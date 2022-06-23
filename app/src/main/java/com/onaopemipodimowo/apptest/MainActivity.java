@@ -9,6 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.snappydb.DB;
+import com.snappydb.DBFactory;
+import com.snappydb.SnappydbException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +52,24 @@ public class MainActivity extends AppCompatActivity {
     //    AsyncHttpClient client = new AsyncHttpClient();
         OkHttpClient client = new OkHttpClient();
        // client.get(APIkey,new JsonHttpResponseHandler(){
-            String url = "https://us-real-estate.p.rapidapi.com/v2/for-rent?city=Detroit&state_code=MI&location=48278&limit=10&offset=0&sort=lowest_price&price_min=1000&price_max=3000&beds_min=1&beds_max=5&baths_min=1&baths_max=5&property_type=apartment&expand_search_radius=25&include_nearby_areas_slug_id=Union-City_NJ%2CHoward-Beach_NY&home_size_min=500&home_size_max=3000&in_unit_features=central_air&community_ammenities=garage_1_or_more&cats_ok=true&dogs_ok=true";
+            String url = "https://us-real-estate.p.rapidapi.com/v2/for-rent?city=Detroit&state_code=MI";
+            String myResponse = "";
+            boolean apikey = false;
+                try {
+                    DB snappydb = DBFactory.open(getApplicationContext());
+                    apikey = snappydb.exists(url);
+                    if (apikey){
+                        myResponse=snappydb.get(url);
+                        mTextViewResult.setText(myResponse);
+                        Log.i(TAG,"fromcache");
+                    }
 
+                } catch (SnappydbException e) {
+                    e.printStackTrace();
+                }
+                if (apikey){
+                    return;
+                }
             Request request = new Request.Builder()
                     .url(url)
                     .get()
@@ -74,10 +94,19 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             mTextViewResult.setText(myResponse);
-
+                            Log.i(TAG,"fromApi");
                         }
                     });
+                    try {
+                        DB snappydb = DBFactory.open(getApplicationContext());
+                        snappydb.put(url,myResponse);
+                        snappydb.close();
+
+                    } catch (SnappydbException e) {
+                        e.printStackTrace();
+                    }
                 }
+
             }
         });
     }
